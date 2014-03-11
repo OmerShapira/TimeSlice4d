@@ -21,7 +21,5 @@ public:
     void load(string filename); //TODO: Create overloads.
     
 private:
-    //TODO: find the generics
-    ofVideoPlayer player;
-    // use getTotalNumFrames();
+
 };

@@ -4,64 +4,57 @@
 void testApp::setup(){
     ofBackground(0, 0, 0);
     ofLog(OF_LOG_VERBOSE);
+    ofSetBackgroundAuto(true);
+    ofSetBackgroundColor(0);
+    ofSetFrameRate(24);
+    
+    timeline.setup();
+    
     filename  = "/Volumes/SSD/Misc/Topgun.mov";
-    player.loadMovie(filename);
+    clip_ptr = ofPtr<Clip>(new Clip(filename));
+    clip_ptr->makeTexture();
+
+    timeline.add(TClip(clip_ptr, ofRange_<int>(0, 99)));
     
-    int w = 100;
-    int h = 100;
-    int d = 100;
-    
-    int arraySize = w * h * d;
-    std::vector<ofFloatColor> mPixels(arraySize);
-    
-    for (int i = 0 ; i < d ; i++){
-        ofPixelsRef pix = player.getPixelsRef();
-        for (int j = 0 ; j < w * h ; j++){
-            mPixels[i * (w * h) + j] = pix.getColor(j % h, j / h);
-        }
-        player.nextFrame();
-    }
-    
-    glGenTextures(1, &m3dTex);
-    glBindTexture( GL_TEXTURE_3D, m3dTex );
-    glTexParameteri( GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
-    glTexParameteri( GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
-    glTexParameterf( GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameterf( GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    glTexParameterf( GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_REPEAT);
-    glTexImage3D( GL_TEXTURE_3D, 0, GL_RGBA, w, h, d, 0, GL_RGBA, GL_FLOAT, mPixels.data() );
-    
-    plane.set(640, 480, 20, 20);
-    plane.setPosition(0, 0, -400);
-    box.set(640, 480, 400);
-    box.setPosition(0, 0, -400);
-    
-    shader.load("shaders/shader");
-    cam.enableMouseInput();
+//    shader.load("shaders/3d_texture_mesh.vert", "shaders/3d_texture_map.frag");
+
+    timeline.play();
+    ofEnableAlphaBlending();
 }
 
 //--------------------------------------------------------------
 void testApp::update(){
-//    cout << cam.get
+    timeline.setCursorSpan((int) ofMap(ofGetMouseX(), 0, ofGetWidth(), 0, 99));
+    timeline.update();
 }
 
 //--------------------------------------------------------------
 void testApp::draw(){
-    glEnable(GL_TEXTURE_3D);
-    cam.begin();
-    shader.begin();
-    shader.setUniform1f("time", ofGetElapsedTimef());
-    shader.setUniformTexture("tex", GL_TEXTURE_3D, m3dTex, 0);
-    ofSetColor(ofFloatColor(1.,1.));
-    plane.drawFaces();
-
-    shader.end();
-    cam.end();
+    ofEnableDepthTest();
+    timeline.draw();
+    ofDisableDepthTest();
+ 
 }
 
 //--------------------------------------------------------------
 void testApp::keyPressed(int key){
+    switch (key) {
+        case 'j':
+            timeline.changeSpeed(-1);
+            break;
+        case 'k':
+            timeline.pause();
+            break;
+        case 'l':
+            timeline.changeSpeed(1);
+            break;
+        case 'o':
+            timeline.toggleOrtho();
+            break;
 
+        default:
+            break;
+    }
 }
 
 //--------------------------------------------------------------

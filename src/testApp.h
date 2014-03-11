@@ -3,6 +3,8 @@
 #include "ofMain.h"
 #include "3dTexture.h"
 #include "ofxPlayable.h"
+#include "Timeline.h"
+#include "Clip.h"
 
 class testApp : public ofBaseApp{
 
@@ -22,12 +24,15 @@ class testApp : public ofBaseApp{
 		void gotMessage(ofMessage msg);
     
     string filename;
-    ofVideoPlayer player;
-    ofEasyCam cam;
+    
+    float modelDepth;
+    
+    
+    Timeline timeline;
+    
+
+  
     ofShader shader;
     
-    ofPlanePrimitive plane;
-    ofBoxPrimitive box;
-    GLuint m3dTex;
-    
+    ofPtr<Clip> clip_ptr;
 };
